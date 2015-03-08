@@ -21,6 +21,8 @@
                :alexandria
                :cl-fad
                :cl-ppcre
+               :cl-annot
+               :cl-emb
                :datafly)
   :components ((:module "src"
                 :components
