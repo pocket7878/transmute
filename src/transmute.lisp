@@ -14,9 +14,8 @@
                 :*connection*
                 :connect-cached
                 :retrieve-one
-                :execute)
-  (:export :*connection*
-           :execute))
+                :execute))
+
 (in-package :transmute)
 
 (annot:enable-annot-syntax)
@@ -30,7 +29,7 @@
 
 (defun ensure-schema-migrations-table ()
   (execute
-   (create-table (:schema_migrations :if-not-exists t)
+   (create-table (:schema_versions :if-not-exists t)
        ((version :type '(:varchar 255)
                  :primary-key t)))))
 
@@ -39,12 +38,11 @@
      (ensure-schema-migrations-table)
      ,@body))
 
-@export
 (defun get-current-version ()
   (with-schema-migrations-table
       (let* ((query
               (select :version
-                      (from :schema_migrations)
+                      (from :schema_versions)
                       (order-by (:desc :version))))
              (result (retrieve-one query)))
         (when result
@@ -116,10 +114,8 @@
          entries)
         entries)))
 
-@export
-(defmacro defmigrate (&optional doc &body body)
-  `(defun migrate ()
-     ,@body))
+(defun pending-migrations ()
+  (filter-migrations #'>))
 
 (defmethod run-migration ((entry migration-entry))
   (let ((migration-file-path
@@ -131,7 +127,7 @@
     (funcall (ensure-symbol 'migrate
                             (migration-entry-package-name entry)))
     (execute
-     (insert-into :schema_migrations
+     (insert-into :schema_versions
                   (set= :version (migration-entry-version entry))))))
 
 (defun gen-new-version ()
@@ -158,7 +154,6 @@
    (string-upcase
     (format nil "~A~A_~A" (or *package-prefix* "") version name))))
 
-
 @export
 (defun gen-new-migration (name)
   (let* ((new-version (gen-new-version))
@@ -178,17 +173,11 @@
        stream))))
 
 @export
-(defun show-version (spec)
-  (with-connection (db spec)
-    (with-schema-migrations-table
-        (format t "~A~%" (get-current-version)))))
-
-@export
 (defun migrate (spec)
   (with-connection (db spec)
     (with-schema-migrations-table
         (loop
-           for entry in (filter-migrations #'>)
+           for entry in (pending-migrations)
            do
              (progn
                (format t "~&run migration file: ~A~%" (migration-entry-filename entry))
