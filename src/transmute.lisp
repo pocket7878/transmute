@@ -27,19 +27,19 @@
   `(let ((*connection* ,conn))
      ,@body))
 
-(defun ensure-schema-migrations-table ()
+(defun ensure-schema-versions-table ()
   (execute
    (create-table (:schema_versions :if-not-exists t)
        ((version :type '(:varchar 255)
                  :primary-key t)))))
 
-(defmacro with-schema-migrations-table (&body body)
+(defmacro with-schema-versions-table (&body body)
   `(progn
      (ensure-schema-migrations-table)
      ,@body))
 
 (defun get-current-version ()
-  (with-schema-migrations-table
+  (with-schema-versions-table
       (let* ((query
               (select :version
                       (from :schema_versions)
@@ -175,7 +175,7 @@
 @export
 (defun migrate (spec)
   (with-connection (db spec)
-    (with-schema-migrations-table
+    (with-schema-versions-table
         (loop
            for entry in (pending-migrations)
            do
