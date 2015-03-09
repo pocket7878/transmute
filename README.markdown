@@ -5,14 +5,16 @@ Common Lisp Deatabase Independent Migration tool.
 ## Usage
 
 ```lisp
-
 ;;Run migrations.
 (migrate (:mysql
           :database-name "test"
           :username "nobody"
           :password "1234"))
 
-;;Create migration.
+*migration-dir*
+#=> #P"db/migrate"
+
+;;Create migration under *migration-dir*.
 (gen-migration "create-users")
 ```
 
