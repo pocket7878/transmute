@@ -21,6 +21,7 @@
                :alexandria
                :cl-fad
                :cl-ppcre
+               :cl-interpol
                :cl-annot
                :cl-emb
                :datafly)

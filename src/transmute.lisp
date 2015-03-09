@@ -13,7 +13,10 @@
   (:import-from :datafly
                 :*connection*
                 :connect-cached
-                :execute))
+                :retrieve-one
+                :execute)
+  (:export :*connection*
+           :execute))
 (in-package :transmute)
 
 (annot:enable-annot-syntax)
@@ -28,7 +31,7 @@
 (defun ensure-schema-migrations-table ()
   (execute
    (create-table (:schema_migrations :if-not-exists t)
-       ((version :type 'string
+       ((version :type '(:varchar 255)
                  :primary-key t)))))
 
 (defmacro with-schema-migrations-table (&body body)
@@ -36,17 +39,16 @@
      (ensure-schema-migrations-table)
      ,@body))
 
+@export
 (defun get-current-version ()
   (with-schema-migrations-table
-      (let* ((result
-              (execute
-               (yield
-                (select :version
-                  (from :schema_migrations)
-                  (order-by (:desc :version))
-                  (limit 1))))))
+      (let* ((query
+              (select :version
+                      (from :schema_migrations)
+                      (order-by (:desc :version))))
+             (result (retrieve-one query)))
         (when result
-          (getf (car result) :version)))))
+          (parse-integer (getf result :version))))))
 
 (defvar *migration-dir* #P"db/migrations/")
 
@@ -63,18 +65,18 @@
           (pathname-type filepath)))
 
 (defun migration-filename-p (filename)
-  (scan "[0-9]+_.*\\.lisp" filename))
+  (scan "^[0-9]+_.*\\.lisp$" filename))
 
 (defun extract-version (migration-file-name)
   (register-groups-bind
    (version)
-   ("([0-9]+)_.*\\.lisp" migration-file-name)
+   ("^([0-9]+)_.*\\.lisp$" migration-file-name)
    (parse-integer version)))
 
 (defun make-package-name (migration-file-name)
   (register-groups-bind
    (basename)
-   ("([0-9]+_.*)\\.lisp" migration-file-name)
+   ("^([0-9]+_.*)\\.lisp$" migration-file-name)
    (make-keyword
     (string-upcase
      (concatenate 'string (or *package-prefix* "") basename)))))
@@ -108,7 +110,7 @@
         (entries (list-migration-entries)))
     (format t "~&Current version: ~A~%" current-ver)
     (if current-ver
-        (remove-if
+        (remove-if-not
          (lambda (e)
            (funcall pred (migration-entry-version e) current-ver))
          entries)
@@ -174,6 +176,12 @@
                :version
                ,new-version))
        stream))))
+
+@export
+(defun show-version (spec)
+  (with-connection (db spec)
+    (with-schema-migrations-table
+        (format t "~A~%" (get-current-version)))))
 
 @export
 (defun migrate (spec)
