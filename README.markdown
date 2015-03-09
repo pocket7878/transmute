@@ -2,17 +2,33 @@
 
 Common Lisp Deatabase Independent Migration tool.
 
-Not working yet.
-
 ## Usage
+
+```lisp
+
+;;Run migrations.
+(migrate (:mysql
+          :database-name "test"
+          :username "nobody"
+          :password "1234"))
+
+;;Create migration.
+(gen-migration "create-users")
+```
 
 ## Installation
 
+## API
+
+- \*migration-dir\*
+- migration [db-spec]
+- gen-new-migration [migration-name]
+
 ## TODO
 
-- Run Migration
-- Generate Migration
+- Migration template.
 - Warning
+- Clack middleware.
 
 ## Author
 

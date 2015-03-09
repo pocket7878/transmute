@@ -14,7 +14,8 @@
                 :*connection*
                 :connect-cached
                 :retrieve-one
-                :execute))
+                :execute)
+  (:export :*migration-dir*))
 
 (in-package :transmute)
 
@@ -155,7 +156,7 @@
     (format nil "~A~A_~A" (or *package-prefix* "") version name))))
 
 @export
-(defun gen-new-migration (name)
+(defun gen-migration (name)
   (let* ((new-version (gen-new-version))
          (new-package-name (gen-new-package-name new-version name))
          (new-filename (gen-new-migration-file-path new-version name))
