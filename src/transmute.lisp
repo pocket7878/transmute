@@ -15,7 +15,13 @@
                 :connect-cached
                 :retrieve-one
                 :execute)
-  (:export :*migration-dir*))
+  (:import-from :transmute.generator
+                :gen-migration
+                :*migration-dir*
+                :*package-prefix*)
+  (:export :*migration-dir*
+           :*package-prefix*
+           :gen-migration))
 
 (in-package :transmute)
 
@@ -48,10 +54,6 @@
              (result (retrieve-one query)))
         (when result
           (parse-integer (getf result :version))))))
-
-(defvar *migration-dir* #P"db/migrations/")
-
-(defvar *package-prefix* nil)
 
 (defstruct migration-entry
   version
@@ -130,48 +132,6 @@
     (execute
      (insert-into :schema_versions
                   (set= :version (migration-entry-version entry))))))
-
-(defun gen-new-version ()
-  (multiple-value-bind (sec min hour date month year)
-      (decode-universal-time (get-universal-time) 0)
-    (format  nil
-             "~4,'0',,D~2,'0',,D~2,'0',,D~2,'0',,D~2,'0',,D~2,'0',,D"
-             year month date hour min sec)))
-
-@export
-(defvar *skeleton-directory*
-  #.(asdf:system-relative-pathname
-     :transmute
-     #p"skeleton/"))
-
-(defun template-pathname (filename)
-  (merge-pathnames-as-file *skeleton-directory* filename))
-
-(defun gen-new-migration-file-path (version name)
-  (format nil "~A_~A.lisp" version name))
-
-(defun gen-new-package-name (version name)
-  (make-keyword
-   (string-upcase
-    (format nil "~A~A_~A" (or *package-prefix* "") version name))))
-
-@export
-(defun gen-migration (name)
-  (let* ((new-version (gen-new-version))
-         (new-package-name (gen-new-package-name new-version name))
-         (new-filename (gen-new-migration-file-path new-version name))
-         (target-path
-          (merge-pathnames-as-file *migration-dir* new-filename)))
-    (format t "~&writing ~A~%" target-path)
-    (with-open-file (stream target-path :direction :output :if-exists :supersede)
-      (write-sequence
-       (cl-emb:execute-emb
-        (template-pathname "migration.lisp")
-        :env `(:package-name
-               ,new-package-name
-               :version
-               ,new-version))
-       stream))))
 
 @export
 (defun migrate (spec)

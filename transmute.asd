@@ -24,10 +24,12 @@
                :cl-interpol
                :cl-annot
                :cl-emb
-               :datafly)
+               :datafly
+               :kebab)
   :components ((:module "src"
                 :components
-                ((:file "transmute"))))
+                ((:file "transmute" :depends-on ("generator"))
+                 (:file "generator"))))
   :description ""
   :long-description
   #.(with-open-file (stream (merge-pathnames

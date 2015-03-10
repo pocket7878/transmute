@@ -20,6 +20,12 @@ Also provides clack middleware to check pending-migration.
 (gen-migration "create-users")
 ```
 
+Generate migration support simple template for:
+
+- create-[hoge]-table
+- add-[hoge]-table
+- remove-[hoge]-table
+
 ## Installation
 
 ## API
@@ -32,12 +38,12 @@ Also provides clack middleware to check pending-migration.
 
 ### clack-migration-checker package
 
-- \<clack-migration-checker\>
-- \<caveman-migration-checker\>
+- &lt;clack-migration-checker&gt;
+- &lt;caveman-migration-checker&gt;
 
 ## TODO
 
-- Migration template.
+- Migration template arguments.
 - Warning
 
 ## Author
