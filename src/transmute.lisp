@@ -36,7 +36,7 @@
 
 (defmacro with-schema-versions-table (&body body)
   `(progn
-     (ensure-schema-migrations-table)
+     (ensure-schema-versions-table)
      ,@body))
 
 (defun get-current-version ()

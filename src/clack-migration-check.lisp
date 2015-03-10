@@ -1,9 +1,10 @@
 (in-package :cl-user)
-(defpackage :transmute.clack-pending-migration-error
+(defpackage :transmute.clack-migration-checker
   (:use :cl
         :clack
         :clack.response)
   (:import-from :transmute
+                :pending-migrations
                 :with-connection
                 :with-schema-versions-table)
   (:import-from :clack.middleware.dbi
@@ -13,7 +14,7 @@
   (:import-from :clack.component
                 :component-designator))
 
-(in-package :transmute.clack-pending-migration-error)
+(in-package :transmute.clack-migration-checker)
 
 (cl-syntax:use-syntax :annot)
 

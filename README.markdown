@@ -2,6 +2,8 @@
 
 Common Lisp Deatabase Independent Migration tool.
 
+Also provides clack middleware to check pending-migration.
+
 ## Usage
 
 ```lisp
@@ -22,15 +24,21 @@ Common Lisp Deatabase Independent Migration tool.
 
 ## API
 
+### transmute package
+
 - \*migration-dir\*
 - migration [db-spec]
 - gen-new-migration [migration-name]
+
+### clack-migration-checker package
+
+- <clack-migration-checker>
+- <caveman-migration-checker>
 
 ## TODO
 
 - Migration template.
 - Warning
-- Clack middleware.
 
 ## Author
 
