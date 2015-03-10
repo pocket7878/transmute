@@ -32,8 +32,8 @@ Also provides clack middleware to check pending-migration.
 
 ### clack-migration-checker package
 
-- <clack-migration-checker>
-- <caveman-migration-checker>
+- \<clack-migration-checker\>
+- \<caveman-migration-checker\>
 
 ## TODO
 
