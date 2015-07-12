@@ -102,9 +102,8 @@
        and
        collect (gen-migration-entry-from-filename filename) into entries
        end
-       finally (progn
-                 (sort entries #'> :key #'migration-entry-version)
-                 (return entries)))))
+       finally (let ((sorted-entries (sort entries #'< :key #'migration-entry-version)))
+                 (return sorted-entries)))))
 
 (defun filter-migrations (pred)
   (let ((current-ver (get-current-version))
